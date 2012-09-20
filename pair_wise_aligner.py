@@ -5,6 +5,16 @@ from Bio.SubsMat import MatrixInfo as matlist
 from Bio import pairwise2
 from Bio.pairwise2 import format_alignment
 matrix = matlist.blosum62
+from optparse import OptionParser
+
+parser = OptionParser()
+parser.add_option("--fasta1", dest="fasta1", help="first fasta file, must be the MouseRefGene_09132012_NR_not_overlapping_filtered_ORFs.fna or Human version of that because I parse the header")
+parser.add_option("--fasta2", dest="fasta2", help="second fasta file, must be output from ORF_finder.py, again special parsing")
+parser.add_option("----transmembrane_out", dest="transmembrane_out", help="file to write transmembrane stuff to")
+parser.add_option("--cutoff_score", dest="cutoff_score", type = 'float', help= "the cutoff for alignments to print out")
+(options, args) = parser.parse_args()
+
+
 #argv[1] is fasta file (the mouse_aa file)
 #argv[2] is fasta file
 
@@ -13,8 +23,9 @@ matrix = matlist.blosum62
          
         
 seqs = {}
-trans = [] 
-for seq in SeqIO.parse(open(sys.argv[1]), 'fasta'):
+trans1 = []
+trans2 = [] 
+for seq in SeqIO.parse(open(options.fasta1), 'fasta'):
     key = seq.id
 
     #print key
@@ -25,12 +36,11 @@ for seq in SeqIO.parse(open(sys.argv[1]), 'fasta'):
     seqs[key] = seq
 
 #dict created, on to the next one
-for seq in SeqIO.parse(open(sys.argv[2]), 'fasta'):
+for seq in SeqIO.parse(open(options.fasta2), 'fasta'):
     
     key = seq.description.split()[1]
     if key in seqs:
-        #print seq.seq
-        #print seqs[key].seq
+        
         
         alignments =  pairwise2.align.globaldx(seq.seq[:-1], seqs[key].seq[:-1], matrix, one_alignment_only = True)
 
@@ -40,12 +50,14 @@ for seq in SeqIO.parse(open(sys.argv[2]), 'fasta'):
             score = alignment[2]
             length = alignment[4]
             normalized_score = score / length
-            #if normalized_score > 3.5:
+            if normalized_score > options.cutoff_score:
             
-            print key, score / length
-            print format_alignment(*alignments[0])
+                print seqs[key].description, score / length
+                print format_alignment(*alignments[0])
                 
-            trans.append(seqs[key])
+                trans1.append(seqs[key])
+                trans2.append(seq)
             
-SeqIO.write(trans, open('transmembrane_domain_input.fna', 'w'), 'fasta')
+SeqIO.write(trans, open("fasta1_" + options.transmembrane_out, 'w'), 'fasta')
+SeqIO.write(trans, open("fasta2_" + options.transmembrane_out, 'w'), 'fasta')
         
