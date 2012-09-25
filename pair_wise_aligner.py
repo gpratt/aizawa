@@ -10,7 +10,7 @@ from optparse import OptionParser
 parser = OptionParser()
 parser.add_option("--fasta1", dest="fasta1", help="first fasta file, must be the MouseRefGene_09132012_NR_not_overlapping_filtered_ORFs.fna or Human version of that because I parse the header")
 parser.add_option("--fasta2", dest="fasta2", help="second fasta file, must be output from ORF_finder.py, again special parsing")
-parser.add_option("----transmembrane_out", dest="transmembrane_out", help="file to write transmembrane stuff to")
+parser.add_option("--transmembrane_out", dest="transmembrane_out", help="file to write transmembrane stuff to")
 parser.add_option("--cutoff_score", dest="cutoff_score", type = 'float', help= "the cutoff for alignments to print out")
 (options, args) = parser.parse_args()
 
@@ -51,13 +51,13 @@ for seq in SeqIO.parse(open(options.fasta2), 'fasta'):
             length = alignment[4]
             normalized_score = score / length
             if normalized_score > options.cutoff_score:
-            
+                
                 print seqs[key].description, score / length
                 print format_alignment(*alignments[0])
                 
                 trans1.append(seqs[key])
                 trans2.append(seq)
             
-SeqIO.write(trans, open("fasta1_" + options.transmembrane_out, 'w'), 'fasta')
-SeqIO.write(trans, open("fasta2_" + options.transmembrane_out, 'w'), 'fasta')
+SeqIO.write(trans1, open("fasta1_" + options.transmembrane_out, 'w'), 'fasta')
+SeqIO.write(trans2, open("fasta2_" + options.transmembrane_out, 'w'), 'fasta')
         

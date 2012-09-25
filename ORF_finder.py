@@ -41,10 +41,14 @@ if __name__ == "__main__":
     
     parser.add_option("--fasta", dest="fasta", help="fasta (faa) file of sequences to search for ORFs, only searches one reading frame, the frame of the previously aligned sequence")
     parser.add_option("--padding", dest='padding', type= 'int', help="padding correction (so we know where to look for ORFs at the start, should be the same as the parse arg)")
+    parser.add_option("--alignment_names", dest='alignment_names', help="names of alignments from parse_blat, lost in the fastafrombed conversion")
     (options, args) = parser.parse_args()
-    
+
+    names = open(options.alignment_names)
     result_list = []
     for seq in SeqIO.parse(open(options.fasta), 'fasta'):
+        name = names.next().strip()
+        
         result = orf_finder(seq, options.padding, "+")
         if result is not None:
             print ">%s\t%s" % (seq.id, name) 

@@ -33,8 +33,6 @@ pad = options.padding
 
 #print blat_files
 
-names = open("names.txt", 'w')
-
 for blat_file in options.blat_files:
     print >> sys.stderr,  blat_file
     chr = blat_file.strip().split(".")[1]
@@ -61,7 +59,7 @@ for blat_file in options.blat_files:
 
             start = int(psl_result.tStart) + 1
             print "\t".join([chr, str(start - pad), str(int(psl_result.tEnd) + pad), psl_result.qName, "0", psl_result.strand[1]])
-            names.write(psl_result.qName + "\n") 
+            
 
         
         
